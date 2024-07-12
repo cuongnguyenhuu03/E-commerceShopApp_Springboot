@@ -57,7 +57,6 @@ public class ProductController {
             @PathVariable("id") Long productId,
             @ModelAttribute("files") List<MultipartFile> files
     ) {
-
         try {
             Product existingProduct = productService.getProductById(productId);
 
