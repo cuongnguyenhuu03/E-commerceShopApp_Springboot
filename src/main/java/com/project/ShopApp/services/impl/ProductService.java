@@ -1,5 +1,6 @@
 package com.project.ShopApp.services.impl;
 
+import com.project.ShopApp.constant.SystemContant;
 import com.project.ShopApp.dtos.ProductDTO;
 import com.project.ShopApp.dtos.ProductImageDTO;
 import com.project.ShopApp.exceptions.DataNotFoundException;
@@ -100,11 +101,9 @@ public class ProductService implements IProductService {
             ProductImageDTO productImageDTO
     ) throws Exception {
         Product existingProduct = productRepository
-                .findById(productImageDTO.getProductid())
-                .orElseThrow(() ->
-                        new DataNotFoundException(
-                                "Can not find category with id: "+ productImageDTO.getProductid()
-                        ));
+                .findById(productId)
+                .orElseThrow(() -> new DataNotFoundException(
+                                "Can not find category with id: "+ productImageDTO.getProductid()));
 
         ProductImage newProductImage = ProductImage.builder()
                 .product(existingProduct)
@@ -112,8 +111,10 @@ public class ProductService implements IProductService {
                 .build();
         // không cho insert quá 5 hình cho 1 sản phẩm
         int size = productImageRepository.findByProductId(productId).size();
-        if(size > 5) {
-            throw new InvalidParamException("number of image must be <= 5");
+        if(size >= SystemContant.MAXIMUM_IMAGES_PER_PRODUCT) {
+            throw new InvalidParamException(
+                    "number of image must be <= "
+                    + SystemContant.MAXIMUM_IMAGES_PER_PRODUCT);
         }
         return productImageRepository.save(newProductImage);
     }

@@ -1,5 +1,6 @@
 package com.project.ShopApp.controllers;
 
+import com.project.ShopApp.constant.SystemContant;
 import com.project.ShopApp.dtos.ProductDTO;
 import com.project.ShopApp.dtos.ProductImageDTO;
 import com.project.ShopApp.models.Product;
@@ -16,6 +17,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -62,6 +64,10 @@ public class ProductController {
 
             // kiểm tra kích thước và định dạng file ảnh
             files = files == null? new ArrayList<MultipartFile>() : files;
+            if(files.size() > SystemContant.MAXIMUM_IMAGES_PER_PRODUCT){
+                return ResponseEntity.badRequest().body("You can only upload 5 images");
+            }
+
             List<ProductImage> productImages = new ArrayList<>();
             for(MultipartFile file: files) {
                 if (file.getSize() == 0) {
@@ -71,13 +77,7 @@ public class ProductController {
                     return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("file is too large");
                 }
                 String contentType = file.getContentType();
-                if (contentType == null || !contentType.startsWith("image/")) {
-                    return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("file must be an image");
-                }
-
                 String fileName = storeFileImg(file);
-
-                // lưu vào đối tượng Product trong DB
 
                 ProductImage productImage = productService.createProductImage(
                         existingProduct.getId(),
@@ -94,6 +94,9 @@ public class ProductController {
     }
 
     private String storeFileImg(MultipartFile file) throws IOException {
+        if(!isImageFile(file) || file.getOriginalFilename() == null){
+            throw new IOException("Valid image format");
+        }
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         String uniqueFileName = UUID.randomUUID().toString() + "_" + fileName;
 
@@ -106,6 +109,11 @@ public class ProductController {
         Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
 
         return uniqueFileName;
+    }
+
+    private boolean isImageFile(MultipartFile file){
+        String contentType = file.getContentType();
+        return contentType != null && contentType.startsWith(("image/"));
     }
 
     @GetMapping("") // http://localhost:8089/api/v1/product?page=1&limit=1
