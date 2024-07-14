@@ -63,7 +63,7 @@ public class Order extends BaseModel{
     private String paymentMethod;
 
     @Column(name = "active")
-    private Boolean active;//thuộc về admin
+    private Boolean active; //belong to admin
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference

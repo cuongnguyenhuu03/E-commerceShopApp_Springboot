@@ -31,7 +31,8 @@ public class User extends BaseModel {
     @Column(name = "password", length = 200,  nullable = false)
     private String password;
 
-    private boolean active;
+    @Column(name = "is_active")
+    private boolean isActive;
 
     @Column(name = "date_of_birth")
     private Date dateOfBirth;
