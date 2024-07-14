@@ -13,10 +13,11 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
 import java.time.LocalDate;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -54,22 +55,43 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public OrderResponse getOrder(Long id) {
-        return null;
+    public OrderResponse getOrder(Long id) throws DataNotFoundException {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Can not find Order with id  = "+id));
+        return modelMapper.map(order, OrderResponse.class);
     }
 
     @Override
     public OrderResponse updateOrder(Long id, OrderDTO orderDTO) throws DataNotFoundException {
-        return null;
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Can not find Order with id  = "+id));
+        User existingUser = userRepository.findById(orderDTO.getUserID())
+                .orElseThrow(() -> new DataNotFoundException("Can not find User with id  = "+id));
+        modelMapper.typeMap(OrderDTO.class, Order.class)
+                .addMappings(mapper -> mapper.skip(Order:: setId));
+        modelMapper.map(orderDTO, order);
+        order.setUser(existingUser);
+        return modelMapper.map(orderRepository.save(order), OrderResponse.class);
+
     }
 
     @Override
     public void deleteOrder(Long id) {
-
+        Order order = orderRepository.findById(id).orElse(null);
+        // no hard-delete -> sofl-delete
+        if(order != null){
+            order.setActive(false);
+            orderRepository.save(order);
+        }
     }
 
     @Override
     public List<OrderResponse> findByUserId(Long userId) {
-        return List.of();
+        List<Order> orders = orderRepository.findByUserId(userId);
+        List<OrderResponse> orderResponses = new ArrayList<>();
+        for (Order order : orders){
+            orderResponses.add(modelMapper.map(order, OrderResponse.class));
+        }
+        return orderResponses;
     }
 }

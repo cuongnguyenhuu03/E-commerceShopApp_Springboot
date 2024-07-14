@@ -1,6 +1,7 @@
 package com.project.ShopApp.controllers;
 
 import com.project.ShopApp.dtos.OrderDTO;
+import com.project.ShopApp.models.Order;
 import com.project.ShopApp.responses.OrderResponse;
 import com.project.ShopApp.services.IOrderService;
 import jakarta.validation.Valid;
@@ -39,24 +40,38 @@ public class OrderController {
         }
     }
 
-    @GetMapping("/{user_id}")
+    @GetMapping("/user/{user_id}")
     public ResponseEntity<?> getOrders(
             @Valid @PathVariable("user_id") Long userId
     ){
         try {
-            return ResponseEntity.ok("Get Orders successfully");
+            List<OrderResponse> orders = orderService.findByUserId(userId);
+            return ResponseEntity.ok(orders);
         } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @PutMapping("/{user_id}")
+    @GetMapping("/{order_id}")
+    public ResponseEntity<?> getOrder(
+            @Valid @PathVariable("order_id") Long id
+    ){
+        try {
+            OrderResponse existingOrder = orderService.getOrder(id);
+            return ResponseEntity.ok(existingOrder);
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}")
     public ResponseEntity<?> updateOrders(
-            @Valid @PathVariable("user_id") Long userId,
+            @Valid @PathVariable("id") Long id,
             @Valid @RequestBody OrderDTO orderDTO
     ){
         try {
-            return ResponseEntity.ok(String.format("Updated order %d successfully",userId));
+            OrderResponse orderResponse = orderService.updateOrder(id, orderDTO);
+            return ResponseEntity.ok(orderResponse);
         } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -67,6 +82,7 @@ public class OrderController {
             @Valid @PathVariable Long id
     ){
         try {
+            orderService.deleteOrder(id);
             return ResponseEntity.ok(String.format("Deleted order successfully %d", id));
         } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
