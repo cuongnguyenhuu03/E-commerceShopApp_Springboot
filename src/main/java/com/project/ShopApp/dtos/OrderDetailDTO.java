@@ -2,10 +2,9 @@ package com.project.ShopApp.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
-@Data // toString
+@Data
 @Getter
 @Setter
 @AllArgsConstructor

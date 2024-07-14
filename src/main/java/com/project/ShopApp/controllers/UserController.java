@@ -58,11 +58,11 @@ public class UserController {
                         .toList();
                 return ResponseEntity.badRequest().body(errorMessages);
             }
-            // kiểm tra thông tin đăng nhập và sinh token
+            // check login information and create token
 
             String token = userService.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
 
-            // trả về token trong response
+            // return token in response
             return ResponseEntity.ok(token);
         } catch (Exception e){
             return ResponseEntity.badRequest().body((e.getMessage()));

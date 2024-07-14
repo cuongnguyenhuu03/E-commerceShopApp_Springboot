@@ -40,7 +40,6 @@ public class OrderDetailController {
         return ResponseEntity.ok("Get oderDetail with id" + id);
     }
 
-    // lấy ra danh sách order_detail của 1 order nào đó
     @GetMapping("/order/{orderId}")
     public ResponseEntity<?> getOrderDetails(
             @Valid @PathVariable("orderId") Long orderId

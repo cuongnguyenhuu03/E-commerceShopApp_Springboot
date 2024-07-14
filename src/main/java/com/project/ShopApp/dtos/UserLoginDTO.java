@@ -2,10 +2,8 @@ package com.project.ShopApp.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.util.Date;
 
 @Data
 @Getter

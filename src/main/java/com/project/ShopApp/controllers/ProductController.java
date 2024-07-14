@@ -1,5 +1,6 @@
 package com.project.ShopApp.controllers;
 
+import com.github.javafaker.Faker;
 import com.project.ShopApp.constant.SystemContant;
 import com.project.ShopApp.dtos.ProductDTO;
 import com.project.ShopApp.dtos.ProductImageDTO;
@@ -13,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.querydsl.QPageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -68,7 +67,7 @@ public class ProductController {
         try {
             Product existingProduct = productService.getProductById(productId);
 
-            // kiểm tra kích thước và định dạng file ảnh
+            // Check the size and format of the image file
             files = files == null? new ArrayList<MultipartFile>() : files;
             if(files.size() > SystemContant.MAXIMUM_IMAGES_PER_PRODUCT){
                 return ResponseEntity.badRequest().body("You can only upload 5 images");
@@ -79,7 +78,7 @@ public class ProductController {
                 if (file.getSize() == 0) {
                     continue;
                 }
-                if (file.getSize() > 10 * 1024 * 1024) { // file kích thước lớn hơn 10 MB
+                if (file.getSize() > 10 * 1024 * 1024) { // Check if the file size is larger than 10 MB
                     return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("file is too large");
                 }
                 String contentType = file.getContentType();
@@ -127,13 +126,13 @@ public class ProductController {
             @RequestParam("page") int page,
             @RequestParam("limit") int limit
     ){
-        // tạp page request từ thông tin trang và giới hạn
+        //  create pageRequest from page and limit
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
                 Sort.by("createdAt").descending());
 
         Page<ProductResponse> productPage = productService.getAllProducts(pageRequest);
-        // lấy tổng số trang
+        // get the total number of pages
         int totalPages = productPage.getTotalPages();
         List<ProductResponse> products =  productPage.getContent();
 
@@ -151,5 +150,30 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProductById(@PathVariable("id") String productId){
         return ResponseEntity.ok(String.format("delete Product id= %s", productId));
+    }
+
+    //@PostMapping("/generateFakeProducts")
+    private ResponseEntity<String> generateFakesProducts(){
+        Faker faker = new Faker();
+        for (int i = 0; i< 5000; i++){
+            String productName = faker.commerce().productName();
+            if(productService.existsByName(productName)){
+                continue;
+            }
+            ProductDTO productDTO = ProductDTO.builder()
+                    .name(productName)
+                    .price( (float) faker.number().numberBetween(1000, 20000))
+                    .description(faker.lorem().sentence())
+                    .thumbnail("")
+                    .categoryId((long) faker.number().numberBetween(1, 10))
+                    .build();
+
+            try {
+                productService.createProduct(productDTO);
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body(e.getMessage());
+            }
+        }
+        return ResponseEntity.ok("Fake products created successfully");
     }
 }

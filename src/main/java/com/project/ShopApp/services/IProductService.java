@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface IProductService {
-
     Product createProduct(ProductDTO product) throws Exception;
     Product getProductById(long id) throws Exception;
     Page<ProductResponse> getAllProducts(PageRequest pageRequest);
