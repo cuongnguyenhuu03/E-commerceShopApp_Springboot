@@ -1,7 +1,12 @@
 package com.project.ShopApp.controllers;
 
 import com.project.ShopApp.dtos.OrderDetailDTO;
+import com.project.ShopApp.exceptions.DataNotFoundException;
+import com.project.ShopApp.responses.OrderDetailResponse;
+import com.project.ShopApp.responses.OrderResponse;
+import com.project.ShopApp.services.impl.OrderDetailService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -12,7 +17,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("${api.prefix}/order_details")
+@RequiredArgsConstructor
 public class OrderDetailController {
+
+    private final OrderDetailService orderDetailService;
+
 
     @PostMapping("")
     public ResponseEntity<?> createOrderdetail(
@@ -27,7 +36,8 @@ public class OrderDetailController {
                         .toList();
                 return ResponseEntity.badRequest().body(errorMessages);
             }
-            return ResponseEntity.ok("create OrderDetail successfully");
+            OrderDetailResponse orderDetailResponse = orderDetailService.createOrderDetail(orderDetailDTO);
+            return ResponseEntity.ok(orderDetailResponse);
         }catch(Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -37,30 +47,42 @@ public class OrderDetailController {
     public ResponseEntity<?> getOrderDetail(
             @Valid @PathVariable("id") Long id
     ){
-        return ResponseEntity.ok("Get oderDetail with id" + id);
+        try {
+            OrderDetailResponse orderDetailResponse = orderDetailService.getOrderDetail(id);
+            return ResponseEntity.ok(orderDetailResponse);
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @GetMapping("/order/{orderId}")
     public ResponseEntity<?> getOrderDetails(
             @Valid @PathVariable("orderId") Long orderId
     ){
-        return ResponseEntity.ok("Get oderDetail list with id " + orderId);
+        List<OrderDetailResponse> orderDetailResponses = orderDetailService.findByOrderId(orderId);
+        return ResponseEntity.ok(orderDetailResponses);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateOrderDetail(
             @Valid @PathVariable("id") Long id,
-            @RequestBody OrderDetailDTO newOrderDetailData
+            @RequestBody OrderDetailDTO orderDetail
     ){
-        return ResponseEntity.ok("Update oderDetail with id" + id
-                + "newOrderDetailData:" + newOrderDetailData);
+        try {
+            OrderDetailResponse orderDetailResponse = orderDetailService.updateOrderDetail(id, orderDetail);
+            return ResponseEntity.ok().body(orderDetailResponse);
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteOrderDetail(
             @Valid @PathVariable("id") Long id
     ){
-        return ResponseEntity.ok("Delete oderDetail with id" + id);
+        orderDetailService.deleteById(id);
+        return ResponseEntity.ok("Delete successfully oderDetail with id" + id);
     }
 
 
