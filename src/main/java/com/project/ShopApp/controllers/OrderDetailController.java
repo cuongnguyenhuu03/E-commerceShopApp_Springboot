@@ -3,7 +3,6 @@ package com.project.ShopApp.controllers;
 import com.project.ShopApp.dtos.OrderDetailDTO;
 import com.project.ShopApp.exceptions.DataNotFoundException;
 import com.project.ShopApp.responses.OrderDetailResponse;
-import com.project.ShopApp.responses.OrderResponse;
 import com.project.ShopApp.services.impl.OrderDetailService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
