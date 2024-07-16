@@ -1,5 +1,6 @@
 package com.project.ShopApp.controllers;
 
+import com.project.ShopApp.models.User;
 import com.project.ShopApp.services.IUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,8 +39,8 @@ public class UserController {
             if(!userDTO.getPassword().equals(userDTO.getRetypePassword())){
                 return ResponseEntity.badRequest().body("Password does not match");
             }
-            userService.createUser(userDTO);
-            return ResponseEntity.ok("Register successfully");
+            User user = userService.createUser(userDTO);
+            return ResponseEntity.ok(user);
         } catch (Exception e){
             return ResponseEntity.badRequest().body((e.getMessage()));
         }
@@ -59,7 +60,6 @@ public class UserController {
                 return ResponseEntity.badRequest().body(errorMessages);
             }
             // check login information and create token
-
             String token = userService.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
 
             // return token in response
