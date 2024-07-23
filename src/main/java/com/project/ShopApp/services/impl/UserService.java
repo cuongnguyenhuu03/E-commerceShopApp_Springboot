@@ -1,6 +1,6 @@
 package com.project.ShopApp.services.impl;
 
-import com.project.ShopApp.components.JwtTokenUtil;
+import com.project.ShopApp.components.JwtTokenUtils;
 import com.project.ShopApp.dtos.UserDTO;
 import com.project.ShopApp.exceptions.DataNotFoundException;
 import com.project.ShopApp.exceptions.PermissionDennyException;
@@ -26,7 +26,7 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenUtils jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
 
     @Override

@@ -1,6 +1,7 @@
 package com.project.ShopApp.controllers;
 
 import com.github.javafaker.Faker;
+import com.project.ShopApp.components.LocalizationUtils;
 import com.project.ShopApp.constant.SystemContant;
 import com.project.ShopApp.dtos.ProductDTO;
 import com.project.ShopApp.dtos.ProductImageDTO;
@@ -9,6 +10,7 @@ import com.project.ShopApp.models.ProductImage;
 import com.project.ShopApp.responses.ProductListResponse;
 import com.project.ShopApp.responses.ProductResponse;
 import com.project.ShopApp.services.impl.ProductService;
+import com.project.ShopApp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -38,6 +40,7 @@ import java.util.UUID;
 public class ProductController {
 
     private final ProductService productService;
+    private final LocalizationUtils localizationUtils;
 
     @PostMapping("")
     public ResponseEntity<?> createProduct(
@@ -70,7 +73,8 @@ public class ProductController {
             // Check the size and format of the image file
             files = files == null? new ArrayList<MultipartFile>() : files;
             if(files.size() > SystemContant.MAXIMUM_IMAGES_PER_PRODUCT){
-                return ResponseEntity.badRequest().body("You can only upload 5 images");
+                return ResponseEntity.badRequest().body(localizationUtils
+                        .getLocalizedMessage(MessageKeys.UPLOAD_IMAGES_MAX_5));
             }
 
             List<ProductImage> productImages = new ArrayList<>();
@@ -79,7 +83,8 @@ public class ProductController {
                     continue;
                 }
                 if (file.getSize() > 10 * 1024 * 1024) { // Check if the file size is larger than 10 MB
-                    return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("file is too large");
+                    return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(localizationUtils
+                            .getLocalizedMessage(MessageKeys.UPLOAD_IMAGES_FILE_LARGE));
                 }
                 String contentType = file.getContentType();
                 String fileName = storeFileImg(file);
@@ -100,7 +105,7 @@ public class ProductController {
 
     private String storeFileImg(MultipartFile file) throws IOException {
         if(!isImageFile(file) || file.getOriginalFilename() == null){
-            throw new IOException("Valid image format");
+            throw new IOException(localizationUtils.getLocalizedMessage(MessageKeys.UPLOAD_IMAGES_FILE_MUST_BE_IMAGE));
         }
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         String uniqueFileName = UUID.randomUUID().toString() + "_" + fileName;
