@@ -1,6 +1,7 @@
 package com.project.ShopApp.services.impl;
 
 import com.project.ShopApp.components.JwtTokenUtils;
+import com.project.ShopApp.components.LocalizationUtils;
 import com.project.ShopApp.dtos.UserDTO;
 import com.project.ShopApp.exceptions.DataNotFoundException;
 import com.project.ShopApp.exceptions.PermissionDennyException;
@@ -9,6 +10,7 @@ import com.project.ShopApp.models.User;
 import com.project.ShopApp.repositories.RoleRepository;
 import com.project.ShopApp.repositories.UserRepository;
 import com.project.ShopApp.services.IUserService;
+import com.project.ShopApp.utils.MessageKeys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +30,7 @@ public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtils jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
+    private final LocalizationUtils localizationUtils;
 
     @Override
     public User createUser(UserDTO userDTO) throws Exception {
@@ -64,7 +67,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public String login(String phoneNumber, String password) throws Exception {
+    public String login(String phoneNumber, String password, Long roleId) throws Exception {
         Optional<User> optionalUser =  userRepository.findByPhoneNumber(phoneNumber);
         if(optionalUser.isEmpty()){
             throw new DataNotFoundException("Invalid phone number / password");
@@ -78,6 +81,12 @@ public class UserService implements IUserService {
                 throw new BadCredentialsException("Wrong phone number or password");
             }
         }
+
+        Optional<Role> optionalRole = roleRepository.findById(roleId);
+        if(optionalRole.isEmpty() || !roleId.equals(existingUser.getRole().getId())) {
+            throw new DataNotFoundException(localizationUtils.getLocalizedMessage(MessageKeys.ROLE_DOES_NOT_EXISTS));
+        }
+
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
             phoneNumber, password, existingUser.getAuthorities()
         );

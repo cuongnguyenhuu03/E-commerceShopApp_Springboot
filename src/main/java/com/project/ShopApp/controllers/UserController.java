@@ -77,7 +77,10 @@ public class UserController {
             // check login information and create token
             String token = userService.login(
                     userLoginDTO.getPhoneNumber(),
-                    userLoginDTO.getPassword());
+                    userLoginDTO.getPassword(),
+                    userLoginDTO.getRoleId() == null ? 1 : userLoginDTO.getRoleId()
+            );
+
 
             // return token in response
             return ResponseEntity.ok(LoginResponse.builder()
