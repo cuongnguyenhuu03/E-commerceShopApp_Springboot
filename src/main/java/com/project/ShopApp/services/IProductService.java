@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public interface IProductService {
     Product createProduct(ProductDTO product) throws Exception;
     Product getProductById(long id) throws Exception;
-    Page<ProductResponse> getAllProducts(PageRequest pageRequest);
+    Page<ProductResponse> getAllProducts(PageRequest pageRequest, Long categoryId, String keyword);
     Product updateProduct(long productId, ProductDTO product) throws Exception;
     void deleteProduct(long id) throws Exception;
     boolean existsByName(String name);

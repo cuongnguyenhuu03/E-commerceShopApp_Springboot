@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -151,15 +150,18 @@ public class ProductController {
 
     @GetMapping("") // http://localhost:8089/api/v1/product?page=1&limit=1
     public ResponseEntity<ProductListResponse> getAllProducts(
-            @RequestParam("page") int page,
-            @RequestParam("limit") int limit
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0", name = "category_id") Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int limit
     ){
         //  create pageRequest from page and limit
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
-                Sort.by("createdAt").descending());
+        //      Sort.by("id").descending()
+                Sort.by("id").ascending());
 
-        Page<ProductResponse> productPage = productService.getAllProducts(pageRequest);
+        Page<ProductResponse> productPage = productService.getAllProducts(pageRequest, categoryId, keyword);
         // get the total number of pages
         int totalPages = productPage.getTotalPages();
         List<ProductResponse> products =  productPage.getContent();

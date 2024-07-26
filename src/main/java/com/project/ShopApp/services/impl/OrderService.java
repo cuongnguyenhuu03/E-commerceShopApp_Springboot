@@ -12,6 +12,7 @@ import com.project.ShopApp.services.IOrderService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
@@ -29,6 +30,7 @@ public class OrderService implements IOrderService {
     private final ModelMapper modelMapper;
 
     @Override
+    @Transactional
     public OrderResponse createOrder(OrderDTO orderDTO) throws Exception {
         // check if the user exists;
         User user = userRepository
@@ -62,6 +64,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
+    @Transactional
     public OrderResponse updateOrder(Long id, OrderDTO orderDTO) throws DataNotFoundException {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Can not find Order with id  = "+id));
@@ -76,6 +79,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
+    @Transactional
     public void deleteOrder(Long id) {
         Order order = orderRepository.findById(id).orElse(null);
         // no hard-delete -> sofl-delete
