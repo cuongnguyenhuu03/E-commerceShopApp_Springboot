@@ -1,5 +1,6 @@
 package com.project.ShopApp.controllers;
 
+import com.project.ShopApp.constant.Role;
 import com.project.ShopApp.models.User;
 import com.project.ShopApp.responses.LoginResponse;
 import com.project.ShopApp.responses.RegisterResponse;
@@ -78,7 +79,7 @@ public class UserController {
             String token = userService.login(
                     userLoginDTO.getPhoneNumber(),
                     userLoginDTO.getPassword(),
-                    userLoginDTO.getRoleId() == null ? 1 : userLoginDTO.getRoleId()
+                    userLoginDTO.getRoleId() == null ? Role.USER : userLoginDTO.getRoleId()
             );
 
 

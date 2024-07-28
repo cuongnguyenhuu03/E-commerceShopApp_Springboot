@@ -32,8 +32,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("${api.prefix}/products")
@@ -117,7 +119,7 @@ public class ProductController {
             } else {
                 return ResponseEntity.ok()
                         .contentType(MediaType.IMAGE_JPEG)
-                        .body(new UrlResource(Paths.get("uploads/notfound.jpg").toUri()));
+                        .body(new UrlResource(Paths.get("upload/notfound.jpg").toUri()));
                 //return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
@@ -178,6 +180,19 @@ public class ProductController {
             Product existingProduct = productService.getProductById(productId);
             return ResponseEntity.ok(ProductResponse.fromProduct(existingProduct));
         } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/by-ids")
+    public ResponseEntity<?> getProductByIds(@RequestParam("ids") String ids){
+        try {
+            List<Long> productIds = Arrays.stream(ids.split(","))
+                    .map(Long :: parseLong)
+                    .collect(Collectors.toList());
+            List<Product> products = productService.findProductByIds(productIds);
+            return ResponseEntity.ok(products);
+        }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

@@ -68,6 +68,11 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    public List<Product> findProductByIds(List<Long> productIds) {
+        return productRepository.findProductsByIds(productIds);
+    }
+
+    @Override
     @Transactional
     public Product updateProduct(
             long productId,

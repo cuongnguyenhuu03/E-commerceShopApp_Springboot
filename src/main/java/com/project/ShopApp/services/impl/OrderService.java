@@ -1,11 +1,16 @@
 package com.project.ShopApp.services.impl;
 
+import com.project.ShopApp.dtos.CartItemDTO;
 import com.project.ShopApp.dtos.OrderDTO;
 import com.project.ShopApp.exceptions.DataNotFoundException;
 import com.project.ShopApp.models.Order;
 import com.project.ShopApp.constant.OrderStatus;
+import com.project.ShopApp.models.OrderDetail;
+import com.project.ShopApp.models.Product;
 import com.project.ShopApp.models.User;
+import com.project.ShopApp.repositories.OrderDetailRepository;
 import com.project.ShopApp.repositories.OrderRepository;
+import com.project.ShopApp.repositories.ProductRepository;
 import com.project.ShopApp.repositories.UserRepository;
 import com.project.ShopApp.responses.OrderResponse;
 import com.project.ShopApp.services.IOrderService;
@@ -26,6 +31,8 @@ public class OrderService implements IOrderService {
 
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
+    private final OrderDetailRepository orderDetailRepository;
 
     private final ModelMapper modelMapper;
 
@@ -53,6 +60,25 @@ public class OrderService implements IOrderService {
         order.setShippingDate(shipingDate);
         order.setActive(true);
         orderRepository.save(order);
+
+        // create OrderDetail from cartItems
+        List<OrderDetail> orderDetails = new ArrayList<>();
+        for (CartItemDTO cartItemDTO : orderDTO.getCartItems()) {
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrder(order);
+
+            Long productId = cartItemDTO.getProductId();
+            int quantity = cartItemDTO.getQuantity();
+
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new DataNotFoundException("Product not found with id: " + productId));
+
+            orderDetail.setProduct(product);
+            orderDetail.setNumberOfProducts(quantity);
+            orderDetail.setPrice(product.getPrice());
+            orderDetails.add(orderDetail);
+        }
+        orderDetailRepository.saveAll(orderDetails);
         return modelMapper.map(order, OrderResponse.class);
     }
 

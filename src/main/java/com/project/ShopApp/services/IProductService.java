@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public interface IProductService {
     Product createProduct(ProductDTO product) throws Exception;
@@ -21,4 +23,5 @@ public interface IProductService {
             Long productId,
             ProductImageDTO productImageDTO
     ) throws Exception;
+    List<Product> findProductByIds (List<Long> productIds);
 }
