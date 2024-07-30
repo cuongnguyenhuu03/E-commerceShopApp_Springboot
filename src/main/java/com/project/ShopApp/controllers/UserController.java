@@ -4,6 +4,7 @@ import com.project.ShopApp.constant.Role;
 import com.project.ShopApp.models.User;
 import com.project.ShopApp.responses.LoginResponse;
 import com.project.ShopApp.responses.RegisterResponse;
+import com.project.ShopApp.responses.UserResponse;
 import com.project.ShopApp.services.IUserService;
 import com.project.ShopApp.components.LocalizationUtils;
 import com.project.ShopApp.utils.MessageKeys;
@@ -13,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.project.ShopApp.dtos.*;
 
@@ -94,6 +92,17 @@ public class UserController {
                             .message(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_FAILED, e.getMessage()))
                             .build()
             );
+        }
+    }
+
+    @PostMapping("/details")
+    public ResponseEntity<UserResponse> getUserDetails(@RequestHeader("Authorization") String token) {
+        try {
+            String extractedToken = token.substring(7); // Loại bỏ "Bearer " từ chuỗi token
+            User user = userService.getUserDetailsFromToken(extractedToken);
+            return ResponseEntity.ok(UserResponse.fromUser(user));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 }

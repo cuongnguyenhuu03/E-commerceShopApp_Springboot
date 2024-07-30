@@ -34,6 +34,7 @@ public class JwtTokenUtils {
     public String generateToken(User user) throws Exception {
         Map<String, Object> claims = new HashMap<>();
         claims.put("phoneNumber", user.getPhoneNumber());
+        claims.put("userId", user.getId());
         //this.generateSecrectKey();
         try {
             String token  = Jwts.builder()
@@ -77,7 +78,7 @@ public class JwtTokenUtils {
     }
 
     //check expiration
-    private boolean isTokenExpired(String token){
+    public boolean isTokenExpired(String token){
         Date expirationDate = this.extractClaim(token, Claims ::getExpiration);
         return expirationDate.before(new Date());
     }
