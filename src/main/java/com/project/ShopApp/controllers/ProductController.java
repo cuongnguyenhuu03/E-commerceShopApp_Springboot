@@ -13,6 +13,8 @@ import com.project.ShopApp.services.impl.ProductService;
 import com.project.ShopApp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -42,6 +44,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
     private final ProductService productService;
     private final LocalizationUtils localizationUtils;
 
@@ -162,6 +165,9 @@ public class ProductController {
                 page, limit,
         //      Sort.by("id").descending()
                 Sort.by("id").ascending());
+
+        logger.info(String.format("keyword = %s, category_id = %d, page = %d, limit = %d",
+                keyword, categoryId, page, limit));
 
         Page<ProductResponse> productPage = productService.getAllProducts(pageRequest, categoryId, keyword);
         // get the total number of pages
