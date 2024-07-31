@@ -16,9 +16,12 @@ import com.project.ShopApp.responses.OrderResponse;
 import com.project.ShopApp.services.IOrderService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.print.Pageable;
 import java.time.LocalDate;
 
 import java.util.ArrayList;
@@ -124,4 +127,14 @@ public class OrderService implements IOrderService {
         }
         return orderResponses;
     }
+
+    @Override
+    public Page<Order> getOrdersByKeywordAndStartDay(
+            LocalDate startDate,
+            String keyword,
+            PageRequest pageRequest) {
+        return orderRepository.findOrders(startDate, keyword, pageRequest);
+    }
+
+
 }
